@@ -28,7 +28,7 @@ pub fn generate_html_from_ast(root: &Vec<AstNode>) -> String {
     html
 }
 
-pub fn write_html(file: &str, mut html: String) -> io::Result<()> {
+pub fn write_html(file: &Path, mut html: String) -> io::Result<()> {
     html.push_str("\n");
-    fs::write(Path::new(file), html)
+    fs::write(&file, html)
 }

@@ -1,50 +1,27 @@
 mod tokenizer;
 mod parser;
 mod generator;
+mod cli;
 
-use std::{env, fs::read_to_string};
-use parser::ParseTokensError;
+use std::{fs::read_to_string, path::Path};
 
-use crate::generator::{generate_html_from_ast, write_html};
-use crate::tokenizer::{push_token, Token};
-use crate::parser::parse_ast_node;
+use cli::parse_command_line_args;
+use parser::{ParseTokensError, parse_ast_node};
+use tokenizer::generate_tokens;
+use generator::{generate_html_from_ast, write_html};
 
 fn main() -> Result<(), ParseTokensError> {
-    let source_path = env::args().nth(1).expect("No source file provided");
-    println!("{source_path}");
-    let source = read_to_string(source_path).expect(&format!("Could not read file"));
+    let command_line_args = parse_command_line_args();
 
-    let mut tokens: Vec<Token> = vec![];
-    let mut string_buffer = String::from("");
-    let mut string_parse_mode = false;
-    for c in source.chars() {
-        if !string_parse_mode {
-            match c {
-                c if c.is_whitespace() => {
-                    push_token(&mut tokens, &mut string_buffer);
-                }
-                '[' | ']' | '{' | '}' | '=' => {
-                    push_token(&mut tokens, &mut string_buffer);
-                    tokens.push(c.into());
-                }
-                '"' => {
-                    push_token(&mut tokens, &mut string_buffer);
-                    string_parse_mode = true;
-                }
-                _ => string_buffer.push(c),
-            }
-        } else {
-            if c == '"' {
-                tokens.push(Token::StringLiteral(string_buffer.clone()));
-                string_buffer.clear();
-                string_parse_mode = false;
-            } else {
-                string_buffer.push(c);
-            }
-        }
+    for path in command_line_args.source_path {
+        let source = read_to_string(path.clone()).expect("Could not read file");
+        let tokens = generate_tokens(&source);
+
+        let ast = parse_ast_node(&mut tokens.into_iter())?;
+        let html = generate_html_from_ast(&ast);
+        let new_path = Path::new(&path).with_extension("html");
+        write_html(&new_path, html).unwrap();
+        println!("HTML written to {}", new_path.to_str().unwrap_or("<FILENAME CANNOT BE DISPLAYED>"));
     }
-    let ast = parse_ast_node(&mut tokens.into_iter())?;
-    let html = generate_html_from_ast(&ast);
-    write_html("test/index.html", html).unwrap();
     Ok(())
 }

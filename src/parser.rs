@@ -64,12 +64,10 @@ pub fn parse_ast_node(tokens: &mut impl Iterator<Item = Token>) -> Result<Vec<As
                             children = parse_ast_node(tokens)?;
                         },
                         Some(Token::LeftBrace) => {
-                            // println!("a");
                             children = parse_ast_node(tokens)?;
                         },
                         _ => return Err(ParseTokensError::SyntaxError),
                     }
-                    println!("parsed tokens {k}");
                     AstNode::Tag {
                         name: k,
                         attributes,
