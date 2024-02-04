@@ -6,7 +6,7 @@ pub fn generate_html_from_ast(root: &Vec<AstNode>) -> String {
     for node in root {
         match node {
             AstNode::StringLiteral(ref s) => html.push_str(s),
-            AstNode::Tag { ref name, ref attributes, ref children } => {
+            AstNode::Tag { ref name, ref attributes, ref children, .. } => {
                 html.push_str("<");
                 html.push_str(name);
                 // html.push_str(" ");
@@ -23,6 +23,10 @@ pub fn generate_html_from_ast(root: &Vec<AstNode>) -> String {
                 html.push_str(name);
                 html.push_str(">");
             }
+            AstNode::Box(n) => {
+                html.push_str(&generate_html_from_ast(n));
+            }
+            AstNode::Children => unreachable!(),
         }
     }
     html

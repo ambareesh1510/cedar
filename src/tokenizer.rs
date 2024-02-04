@@ -5,6 +5,10 @@ pub enum Token {
     LeftBrace,
     RightBrace,
     Equals,
+    Include,
+    Def,
+    Children,
+    CustomComponent(String),
     Keyword(String),
     StringLiteral(String),
 }
@@ -24,7 +28,17 @@ impl From<char> for Token {
 
 pub fn push_token(v: &mut Vec<Token>, b: &mut String) {
     if b.len() != 0 {
-        v.push(Token::Keyword(b.clone()));
+        if b == "@include" {
+            v.push(Token::Include);
+        } else if b == "@def" {
+            v.push(Token::Def);
+        } else if b == "@children" {
+            v.push(Token::Children);
+        } else if &b[0..1] == "@" {
+            v.push(Token::CustomComponent(b[1..].to_string()))
+        } else {
+            v.push(Token::Keyword(b.clone()));
+        }
         b.clear();
     }
 }
