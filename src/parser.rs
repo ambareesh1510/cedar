@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, collections::HashMap};
+use std::{collections::HashMap, error::Error, fmt::Display, fs::read_to_string, path::Path};
 
 use crate::tokenizer::{generate_tokens, Token};
 
@@ -21,6 +21,18 @@ pub enum ParseTokensError {
     SyntaxError,
     UndefinedSymbol,
 }
+
+impl Display for ParseTokensError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Eof => f.write_str("Error: End of file"),
+            Self::SyntaxError => f.write_str("Error: Syntax error"),
+            Self::UndefinedSymbol => f.write_str("Error: Undefined symbol"),
+        }
+    }
+}
+
+impl Error for ParseTokensError {}
 
 fn get_next_attribute_token(tokens: &mut impl Iterator<Item = Token>) -> Result<Token, ParseTokensError> {
     let token = tokens.next();
@@ -49,7 +61,7 @@ fn parse_attributes(tokens: &mut impl Iterator<Item = Token>) -> Result<Vec<(Str
     }
 }
 
-pub fn preprocess_tokens(tokens: &mut Vec<Token>) -> Result<(), ParseTokensError> {
+pub fn preprocess_tokens(tokens: &mut Vec<Token>, include_dirs: &[String]) -> Result<(), ParseTokensError> {
     let mut index = 0;
     while index < tokens.len() {
         if let Token::Include = tokens[index] {
@@ -57,12 +69,20 @@ pub fn preprocess_tokens(tokens: &mut Vec<Token>) -> Result<(), ParseTokensError
                 return Err(ParseTokensError::Eof);
             }
             if let Token::StringLiteral(include_file_path) = &tokens[index + 1] {
-                let Ok(include_file_source) = read_to_string(include_file_path) else {
-                    println!("Include file not found: `{include_file_path}`");
-                    return Err(ParseTokensError::SyntaxError);
+                let mut i = 0;
+                println!("include dirs: {:?}", include_dirs);
+                let include_file_source = loop {
+                    if i >= include_dirs.len() {
+                        println!("Include file not found: `{include_file_path}`");
+                        return Err(ParseTokensError::SyntaxError);
+                    }
+                    if let Ok(source) = read_to_string(Path::new(&include_dirs[i]).join(include_file_path)) {
+                        break source;
+                    }
+                    i += 1;
                 };
                 let mut include_tokens = generate_tokens(&include_file_source);
-                preprocess_tokens(&mut include_tokens)?;
+                preprocess_tokens(&mut include_tokens, include_dirs)?;
                 include_tokens.reverse();
                 tokens.remove(index);
                 tokens.remove(index);
@@ -162,7 +182,10 @@ pub fn parse_ast_node(tokens: &mut impl Iterator<Item = Token>, symbol_table: &m
                     unwrap_component(&k, symbol_table, children)?
                 }
                 Token::RightBrace => return Ok(tags),
-                _ => todo!()
+                other => {
+                    println!("Unexpected token {:?}", other);
+                    unimplemented!()
+                }
             }
         })
     }

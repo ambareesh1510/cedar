@@ -1,22 +1,66 @@
-use std::path::Path;
+use std::{error::Error, fmt::Display, path::Path};
 
 pub struct ParsedArgs {
-    pub source_path: Vec<String>,
+    pub input_paths: Vec<String>,
+    pub include_dirs: Vec<String>,
+    pub output_dir: String,
 }
-pub fn parse_command_line_args() -> ParsedArgs {
+
+#[derive(Debug)]
+pub enum ParseArgsError {
+    MissingArgument(String),
+    FileNotFound(String),
+}
+
+impl Display for ParseArgsError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::MissingArgument(s) => f.write_str(s),
+            Self::FileNotFound(s) => f.write_str(s),
+        }
+    }
+}
+
+impl Error for ParseArgsError {}
+
+pub fn parse_command_line_args() -> Result<ParsedArgs, ParseArgsError> {
     let mut parsed_args = ParsedArgs {
-        source_path: vec![],
+        input_paths: vec![],
+        include_dirs: vec!["".into()],
+        output_dir: String::new(),
     };
-    let args = std::env::args();
+    let mut args = std::env::args();
     if args.len() == 0 {
         panic!("No source files provided");
     }
-    for arg in args.skip(1) {
-        if Path::new(&arg).is_file() {
-            parsed_args.source_path.push(arg);
-        } else {
-            panic!("Invalid file path: `{arg}`");
+    args.next();
+    loop {
+        match args.next() {
+            None => break,
+            Some(arg) => {
+                match arg.to_lowercase().as_str() {
+                    "-i" => {
+                        let Some(include_dir) = args.next() else {
+                            return Err(ParseArgsError::MissingArgument(format!("Directory required after option `-i`")));
+                        };
+                        parsed_args.include_dirs.push(include_dir);
+                    },
+                    "-o" => {
+                        let Some(output_dir) = args.next() else {
+                            return Err(ParseArgsError::MissingArgument(format!("Directory required after option `-i`")));
+                        };
+                        parsed_args.output_dir = output_dir;
+                    },
+                    _ => {
+                        if Path::new(&arg).is_file() {
+                            parsed_args.input_paths.push(arg);
+                        } else {
+                            return Err(ParseArgsError::FileNotFound(format!("File `{arg}` cannot be located")));
+                        }
+                    },
+                }
+            }
         }
     }
-    parsed_args
+    Ok(parsed_args)
 }

@@ -32,7 +32,14 @@ pub fn generate_html_from_ast(root: &Vec<AstNode>) -> String {
     html
 }
 
-pub fn write_html(file: &Path, mut html: String) -> io::Result<()> {
+pub fn write_html(file: &str, output_dir: &str, mut html: String) -> io::Result<()> {
     html.push_str("\n");
-    fs::write(&file, html)
+    let new_path = Path::new(output_dir).join(file).with_extension("html");
+    let path_parent = new_path.parent().unwrap();
+    fs::create_dir_all(path_parent)?;
+    let write_html_result = fs::write(new_path.clone(), html);
+    if write_html_result.is_ok() {
+        println!("HTML written to {}", new_path.to_str().unwrap_or("<FILENAME CANNOT BE DISPLAYED>"));
+    }
+    write_html_result
 }
