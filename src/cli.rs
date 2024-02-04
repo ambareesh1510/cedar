@@ -41,13 +41,13 @@ pub fn parse_command_line_args() -> Result<ParsedArgs, ParseArgsError> {
                 match arg.to_lowercase().as_str() {
                     "-i" => {
                         let Some(include_dir) = args.next() else {
-                            return Err(ParseArgsError::MissingArgument(format!("Directory required after option `-i`")));
+                            return Err(ParseArgsError::MissingArgument("Directory required after option `-i`".to_string()));
                         };
                         parsed_args.include_dirs.push(include_dir);
                     },
                     "-o" => {
                         let Some(output_dir) = args.next() else {
-                            return Err(ParseArgsError::MissingArgument(format!("Directory required after option `-i`")));
+                            return Err(ParseArgsError::MissingArgument("Directory required after option `-o`".to_string()));
                         };
                         parsed_args.output_dir = output_dir;
                     },

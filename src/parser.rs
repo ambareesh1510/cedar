@@ -50,7 +50,7 @@ fn parse_attributes(tokens: &mut impl Iterator<Item = Token>) -> Result<Vec<(Str
     let mut attributes = Vec::<(String, String)>::new();
     loop {
         let first_token = get_next_attribute_token(tokens);
-        if let Err(_) = first_token {
+        if first_token.is_err() {
             return Ok(attributes);
         }
         attributes.push(match (first_token.unwrap(), get_next_attribute_token(tokens)?, get_next_attribute_token(tokens)?) {

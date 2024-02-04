@@ -27,7 +27,7 @@ impl From<char> for Token {
 }
 
 pub fn push_token(v: &mut Vec<Token>, b: &mut String) {
-    if b.len() != 0 {
+    if !b.is_empty() {
         if b == "@include" {
             v.push(Token::Include);
         } else if b == "@def" {
@@ -63,14 +63,12 @@ pub fn generate_tokens(source: &str) -> Vec<Token> {
                 }
                 _ => string_buffer.push(c),
             }
+        } else if c == '"' {
+            tokens.push(Token::StringLiteral(string_buffer.clone()));
+            string_buffer.clear();
+            string_parse_mode = false;
         } else {
-            if c == '"' {
-                tokens.push(Token::StringLiteral(string_buffer.clone()));
-                string_buffer.clear();
-                string_parse_mode = false;
-            } else {
-                string_buffer.push(c);
-            }
+            string_buffer.push(c);
         }
     }
     tokens

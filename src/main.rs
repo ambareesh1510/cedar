@@ -3,7 +3,7 @@ mod parser;
 mod generator;
 mod cli;
 
-use std::{collections::HashMap, error::Error, fs::read_to_string, path::Path};
+use std::{collections::HashMap, error::Error, fs::read_to_string};
 
 use cli::parse_command_line_args;
 use parser::parse_ast_node;

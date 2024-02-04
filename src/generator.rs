@@ -7,21 +7,21 @@ pub fn generate_html_from_ast(root: &Vec<AstNode>) -> String {
         match node {
             AstNode::StringLiteral(ref s) => html.push_str(s),
             AstNode::Tag { ref name, ref attributes, ref children, .. } => {
-                html.push_str("<");
+                html.push('<');
                 html.push_str(name);
                 // html.push_str(" ");
                 for (k, v) in attributes {
-                    html.push_str(" ");
+                    html.push(' ');
                     html.push_str(k);
                     html.push_str("=\"");
                     html.push_str(v);
-                    html.push_str("\"")
+                    html.push('"')
                 }
-                html.push_str(">");
+                html.push('>');
                 html.push_str(&generate_html_from_ast(children));
                 html.push_str("</");
                 html.push_str(name);
-                html.push_str(">");
+                html.push('>');
             }
             AstNode::Box(n) => {
                 html.push_str(&generate_html_from_ast(n));
@@ -33,7 +33,7 @@ pub fn generate_html_from_ast(root: &Vec<AstNode>) -> String {
 }
 
 pub fn write_html(file: &str, output_dir: &str, mut html: String) -> io::Result<()> {
-    html.push_str("\n");
+    html.push('\n');
     let new_path = Path::new(output_dir).join(file).with_extension("html");
     let path_parent = new_path.parent().unwrap();
     fs::create_dir_all(path_parent)?;
