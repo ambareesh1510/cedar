@@ -22,7 +22,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let ast = parse_ast_node(&mut tokens.into_iter(), &mut HashMap::new())?;
         let html = generate_html_from_ast(&ast);
-        // let new_path = Path::new(&path).with_extension("html");
         write_html(&path, &command_line_args.output_dir, html).unwrap();
     }
     Ok(())

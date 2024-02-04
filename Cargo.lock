@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "hyperplate-rs"
+name = "cedar"
 version = "0.1.0"
