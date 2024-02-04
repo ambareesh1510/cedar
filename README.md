@@ -63,6 +63,7 @@ cedar index.cedar -i include -o out
 ```
 
 # Todo
+- [ ] Add file extension checking
 - [ ] Add `cedar --help` and `cedar -h` subcommands to output help messages
 - [ ] Add configurability for include paths, output directories, etc. via a TOML file
 - [ ] Improve logic to minify generated HTML
