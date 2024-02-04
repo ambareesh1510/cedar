@@ -20,7 +20,7 @@ html {
 }
 ```
 Running `cedar index.cedar` will compile your markup into a (somewhat minified) `index.html` file that looks like this:
-```
+```html
 <html><head><title>My personal website</title></head><body><h1>This is a website for me to showcase my projects.</h1><a href="projects">You can see a list of projects here.</a></body></html>
 ```
 Next, add a custom component in `include/custom.cedar`:
@@ -49,9 +49,8 @@ Notice that, in our `@include` statement, we didn't qualify the entire file path
 cedar index.cedar -i include 
 ```
 If we take a look at our compiled `index.html` again, we'll see that the `custom-component` has been replaced with its plain HTML contents:
-```
-<html><head><title>My personal website</title></head><body><h1>This is a website for me
-to showcase my projects.</h1><a href="projects">You can see a list of projects here.</a><p style="font-weight: bold">Hello from a component!</p>Here's a child element of our custom component.</body></html>
+```html
+<html><head><title>My personal website</title></head><body><h1>This is a website for me to showcase my projects.</h1><a href="projects">You can see a list of projects here.</a><p style="font-weight: bold">Hello from a component!</p>Here's a child element of our custom component.</body></html>
 ```
 And if we look at the webpage rendered in the browser, we'll see that it's exactly what we expected:
 
