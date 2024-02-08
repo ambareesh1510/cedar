@@ -4,7 +4,7 @@
 Cedar is a static site generator with a strong focus on *components*. Essentially, Cedar provides a thin syntactic abstraction over HTML that allows users to reuse certain parts of their code without the complexity of something like JSX.
 
 # Installation
-Clone this repo, then run `cargo build` to build the CLI.
+Clone this repo, then run `cargo install --path .` to build the CLI. Note that for this to work, you will have to append the Cargo installation directory (e.g. `.cargo/bin`) to your `PATH` environment variable. Alternatively, after cloning this repo, run `cargo r` in place of `cedar` in the commands below.
 
 # Usage
 First, write an `index.cedar` like this:
@@ -68,3 +68,4 @@ cedar index.cedar -i include -o out
 - [ ] Improve logic to minify generated HTML
 - [ ] Add support for attributes on custom components
 - [ ] Add support for multiple "child" elements in custom components
+- [ ] Create converter from HTML to `.cedar`
